@@ -12,6 +12,7 @@ import 'package:minispotify/ui/shared/player_slider.dart';
 
 import 'package:minispotify/extensions.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class PlayerPage extends StatefulWidget {
   @override
@@ -141,9 +142,15 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                       }
 //
                       final Playing playing2 = _player.current.value;
-                      final Duration position = snapshot.data;
-
-                      var _xxx = min(_dragValue ?? _playerCurrent, _playerDuration);
+                      Duration position = snapshot.data;
+                      if (position == playing2.audio.duration) {
+                        _dragValue = null;
+                      } else {
+                        _dragValue = position.inMilliseconds.toDouble();
+                      }
+                      print('object  ${position} - ${playing2.audio.duration}');
+                      var _xxx = min(
+                          _dragValue ?? position.inMilliseconds.toDouble(), playing2.audio.duration.inMilliseconds.toDouble());
                       return SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           activeTrackColor: Colors.white,
@@ -153,33 +160,49 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                           trackHeight: 2,
                           thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4),
                         ),
-                        child: Slider(
+                        child: SfSlider(
+                          activeColor: Colors.blue,
+                          inactiveColor: Colors.amber[50],
                           min: 0.0,
-                          max: _playerDuration,
+                          max: playing2.audio.duration.inMilliseconds.toDouble(),
                           value: _xxx,
-                          //value: min(_dragValue ?? _playerCurrent, _playerDuration),
-                          //value: position.inMilliseconds.toDouble() == playing2.audio.duration.inMilliseconds.toDouble()
-                          //  ? 0.0
-                          // : position.inMilliseconds.toDouble(),
-                          // value: currentPosition,
-                          // max: totalDuration,
-                          // min: 0.0,
-                          //  value: min(_dragValue ?? widget.position.inMilliseconds.toDouble(), widget.duration.inMilliseconds.toDouble()),
+
+//                         double _value = 4.0;
+
+// SfSlider(
+//   min: 0.0,
+//   max: 10.0,
+//   value: _value,
+//   interval: 1,
+//   showTicks: true,
+//   showLabels: true,
+//   inactiveColor: Colors.red,
+//   onChanged: (dynamic newValue) {
+//     setState(() {
+//       _value = newValue;
+//     });
+//    },
+// )
 
                           onChanged: (value) {
                             setState(() {
                               _dragValue = value;
-                            });
-                            _player.seek(Duration(milliseconds: value.round()));
-                          },
-                          onChangeEnd: (value) {
-                            if (widget.onChanged != null) {
-                              widget.onChanged(Duration(milliseconds: value.round()));
-                            }
-                            //_player.seek(Duration(milliseconds: value.round()));
 
-                            _dragValue = null;
+                              print('object2  ${position} - ${playing2.audio.duration}');
+                            });
+
+                            print('object3  ${position} - ${playing2.audio.duration}');
+                            _player.seek(Duration(milliseconds: value.toInt()));
                           },
+
+                          // onChangeEnd: (value) {
+                          //   // if (widget.onChanged != null) {
+                          //   //   widget.onChanged(Duration(milliseconds: value.round()));
+                          //   // }
+                          //   _player.seek(Duration(milliseconds: value.round()));
+
+                          //   _dragValue = null;
+                          // },
                         ),
                       );
                     },
@@ -238,6 +261,7 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                   size: 40,
                 ),
                 onPressed: () {
+                  _dragValue = null;
                   audioPlayer.next();
                 },
               ),
