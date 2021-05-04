@@ -91,10 +91,17 @@ class PlayerControlWidget extends StatefulWidget {
 }
 
 class _PlayerControlWidgetState extends State<PlayerControlWidget> {
+  AssetsAudioPlayer audioPlayer;
+  @override
+  void didChangeDependencies() {
+    audioPlayer = context.read(audioPlayerProvider);
+
+    super.didChangeDependencies();
+  }
+
   double _dragValue;
   @override
   Widget build(BuildContext context) {
-    final audioPlayer = context.read(audioPlayerProvider);
     return Column(
       children: [
         Row(
@@ -102,7 +109,7 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
           children: [
             Consumer(
               builder: (context, watch, child) {
-                final totalDuration = watch(currentPositionProvider);
+                final totalDuration = watch(currentPositionProviderVaxt);
                 return totalDuration.when(
                     data: (value) => Text("A ${Duration(seconds: value.toInt()).format()}"),
                     loading: () => Container(),
@@ -135,6 +142,8 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
 //
                       final Playing playing2 = _player.current.value;
                       final Duration position = snapshot.data;
+
+                      var _xxx = min(_dragValue ?? _playerCurrent, _playerDuration);
                       return SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           activeTrackColor: Colors.white,
@@ -147,7 +156,8 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                         child: Slider(
                           min: 0.0,
                           max: _playerDuration,
-                          value: min(_dragValue ?? _playerCurrent, _playerDuration),
+                          value: _xxx,
+                          //value: min(_dragValue ?? _playerCurrent, _playerDuration),
                           //value: position.inMilliseconds.toDouble() == playing2.audio.duration.inMilliseconds.toDouble()
                           //  ? 0.0
                           // : position.inMilliseconds.toDouble(),
@@ -182,7 +192,7 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
             ),
             Consumer(
               builder: (context, watch, child) {
-                final totalDuration = watch(totalDurationProvider);
+                final totalDuration = watch(totalDurationProviderVaxt);
                 return totalDuration.when(
                     data: (value) => Text(Duration(seconds: value.toInt()).format()),
                     loading: () => Container(),

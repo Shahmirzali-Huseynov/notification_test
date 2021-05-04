@@ -80,8 +80,9 @@ final audioPlayerProvider = Provider.autoDispose<AssetsAudioPlayer>((ref) {
           .toList(),
     ),
     notificationSettings: NotificationSettings(
+      stopEnabled: false,
       customNextAction: (player) {
-        print('30 saniye saga');
+        player.seekBy(Duration(seconds: 4));
       },
     ),
     autoStart: false,
@@ -91,10 +92,10 @@ final audioPlayerProvider = Provider.autoDispose<AssetsAudioPlayer>((ref) {
 });
 
 final currentlyPlayingProvider = StreamProvider.autoDispose<AudioTrackModel>((ref) {
- final playlist = ref.watch(playlistProvider);
+  final playlist = ref.watch(playlistProvider);
   final audioPlayer = ref.watch(audioPlayerProvider);
- // return audioPlayer.currentPosition;
-   return audioPlayer.current.map((playing) => playlist[playing.index]);
+  // return audioPlayer.currentPosition;
+  return audioPlayer.current.map((playing) => playlist[playing.index]);
 });
 
 final totalDurationProvider = StreamProvider.autoDispose<double>((ref) {
@@ -105,6 +106,16 @@ final totalDurationProvider = StreamProvider.autoDispose<double>((ref) {
 final currentPositionProvider = StreamProvider.autoDispose<double>((ref) {
   final audioPlayer = ref.watch(audioPlayerProvider);
   return audioPlayer.currentPosition.map((position) => position.inMilliseconds.toDouble());
+});
+
+final totalDurationProviderVaxt = StreamProvider.autoDispose<double>((ref) {
+  final audioPlayer = ref.watch(audioPlayerProvider);
+  return audioPlayer.current.map((playing) => playing.audio.duration.inSeconds.toDouble());
+});
+
+final currentPositionProviderVaxt = StreamProvider.autoDispose<double>((ref) {
+  final audioPlayer = ref.watch(audioPlayerProvider);
+  return audioPlayer.currentPosition.map((position) => position.inSeconds.toDouble());
 });
 
 final playingStateProvider = StreamProvider.autoDispose<bool>((ref) {
