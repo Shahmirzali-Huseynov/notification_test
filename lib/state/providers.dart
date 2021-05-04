@@ -99,12 +99,12 @@ final currentlyPlayingProvider = StreamProvider.autoDispose<AudioTrackModel>((re
 
 final totalDurationProvider = StreamProvider.autoDispose<double>((ref) {
   final audioPlayer = ref.watch(audioPlayerProvider);
-  return audioPlayer.current.map((playing) => playing.audio.duration.inSeconds.toDouble());
+  return audioPlayer.current.map((playing) => playing.audio.duration.inMilliseconds.toDouble());
 });
 
 final currentPositionProvider = StreamProvider.autoDispose<double>((ref) {
   final audioPlayer = ref.watch(audioPlayerProvider);
-  return audioPlayer.currentPosition.map((position) => position.inSeconds.toDouble());
+  return audioPlayer.currentPosition.map((position) => position.inMilliseconds.toDouble());
 });
 
 final playingStateProvider = StreamProvider.autoDispose<bool>((ref) {

@@ -104,7 +104,7 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
               builder: (context, watch, child) {
                 final totalDuration = watch(currentPositionProvider);
                 return totalDuration.when(
-                    data: (value) => Text(Duration(seconds: value.toInt()).format()),
+                    data: (value) => Text("A ${Duration(seconds: value.toInt()).format()}"),
                     loading: () => Container(),
                     error: (_, __) => Container());
               },
@@ -114,6 +114,13 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
               child: Consumer(
                 builder: (context, watch, child) {
                   final _player = watch(audioPlayerProvider);
+                  final _playerDuration =
+                      watch(totalDurationProvider).when(data: (duration) => duration, loading: () => 0.0, error: (_, __) => 0.0);
+                  final _playerCurrent = watch(currentPositionProvider)
+                      .when(data: (position) => position, loading: () => 0.0, error: (_, __) => 0.0);
+
+                  // final _playerCurrent = watch(currentPositionProvider);
+                  //final _playerDuration = watch(totalDurationProvider);
                   return StreamBuilder<Duration>(
                     stream: _player.currentPosition,
                     builder: (context, snapshot) {
@@ -139,9 +146,8 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                         ),
                         child: Slider(
                           min: 0.0,
-                          max: playing2.audio.duration.inMilliseconds.toDouble(),
-                          value: min(_dragValue ?? position.inMilliseconds.toDouble(),
-                              playing2.audio.duration.inMilliseconds.toDouble()),
+                          max: _playerDuration,
+                          value: min(_dragValue ?? _playerCurrent, _playerDuration),
                           //value: position.inMilliseconds.toDouble() == playing2.audio.duration.inMilliseconds.toDouble()
                           //  ? 0.0
                           // : position.inMilliseconds.toDouble(),
@@ -154,13 +160,15 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                             setState(() {
                               _dragValue = value;
                             });
+                            _player.seek(Duration(milliseconds: value.round()));
+                          },
+                          onChangeEnd: (value) {
                             if (widget.onChanged != null) {
                               widget.onChanged(Duration(milliseconds: value.round()));
                             }
-                          },
-                          onChangeEnd: (value) {
-                            _player.seek(Duration(milliseconds: value.round()));
-                            _dragValue = value;
+                            //_player.seek(Duration(milliseconds: value.round()));
+
+                            _dragValue = null;
                           },
                         ),
                       );
