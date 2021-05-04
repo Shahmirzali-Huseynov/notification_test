@@ -1,0 +1,232 @@
+import 'dart:math';
+
+import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/all.dart';
+import 'package:minispotify/models/audio_track_model.dart';
+import 'package:minispotify/state/providers.dart';
+import 'package:minispotify/ui/shared/currently_playing_thumbnail.dart';
+import 'package:minispotify/ui/shared/currently_playing_title.dart';
+import 'package:minispotify/ui/shared/play_pause_button.dart';
+import 'package:minispotify/ui/shared/player_slider.dart';
+
+import 'package:minispotify/extensions.dart';
+import 'package:rxdart/rxdart.dart';
+
+class PlayerPage extends StatefulWidget {
+  @override
+  _PlayerPageState createState() => _PlayerPageState();
+}
+
+class _PlayerPageState extends State<PlayerPage> {
+  @override
+  void dispose() {
+    context.read(audioPlayerProvider).dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: Text(
+          'My Awesome Playlist',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: 32,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        elevation: 0.0,
+      ),
+      body: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [Color(0xFFe63946), Colors.black.withOpacity(0.6)],
+                  stops: [0.0, 0.4],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  tileMode: TileMode.repeated)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 40.0,
+                    vertical: 60.0,
+                  ),
+                  child: CurrentlyPlayingThumbnail(
+                    height: MediaQuery.of(context).size.width - 60,
+                    width: MediaQuery.of(context).size.width - 60,
+                  )),
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 40),
+                  child: CurrentlyPlayingText(
+                    fontSize: 14,
+                  )),
+              Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: PlayerControlWidget())
+            ],
+          )),
+    );
+  }
+}
+
+class PlayerControlWidget extends StatefulWidget {
+  final ValueChanged<Duration> onChanged;
+  PlayerControlWidget({
+    this.onChanged,
+  });
+  @override
+  _PlayerControlWidgetState createState() => _PlayerControlWidgetState();
+}
+
+class _PlayerControlWidgetState extends State<PlayerControlWidget> {
+  double _dragValue;
+  @override
+  Widget build(BuildContext context) {
+    final audioPlayer = context.read(audioPlayerProvider);
+    return Column(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Consumer(
+              builder: (context, watch, child) {
+                final totalDuration = watch(currentPositionProvider);
+                return totalDuration.when(
+                    data: (value) => Text(Duration(seconds: value.toInt()).format()),
+                    loading: () => Container(),
+                    error: (_, __) => Container());
+              },
+            ),
+            Flexible(
+              flex: 2,
+              child: Consumer(
+                builder: (context, watch, child) {
+                  final _player = watch(audioPlayerProvider);
+                  return StreamBuilder<Duration>(
+                    stream: _player.currentPosition,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Slider(
+                          value: 0.0,
+                          onChanged: (double value) => null,
+                          activeColor: Colors.transparent,
+                          inactiveColor: Colors.transparent,
+                        );
+                      }
+//
+                      final Playing playing2 = _player.current.value;
+                      final Duration position = snapshot.data;
+                      return SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: Colors.white,
+                          inactiveTrackColor: Colors.white.withOpacity(0.3),
+                          thumbColor: Colors.white,
+                          overlayColor: Colors.white.withOpacity(0.3),
+                          trackHeight: 2,
+                          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4),
+                        ),
+                        child: Slider(
+                          min: 0.0,
+                          max: playing2.audio.duration.inMilliseconds.toDouble(),
+                          value: min(_dragValue ?? position.inMilliseconds.toDouble(),
+                              playing2.audio.duration.inMilliseconds.toDouble()),
+                          //value: position.inMilliseconds.toDouble() == playing2.audio.duration.inMilliseconds.toDouble()
+                          //  ? 0.0
+                          // : position.inMilliseconds.toDouble(),
+                          // value: currentPosition,
+                          // max: totalDuration,
+                          // min: 0.0,
+                          //  value: min(_dragValue ?? widget.position.inMilliseconds.toDouble(), widget.duration.inMilliseconds.toDouble()),
+
+                          onChanged: (value) {
+                            setState(() {
+                              _dragValue = value;
+                            });
+                            if (widget.onChanged != null) {
+                              widget.onChanged(Duration(milliseconds: value.round()));
+                            }
+                          },
+                          onChangeEnd: (value) {
+                            _player.seek(Duration(milliseconds: value.round()));
+                            _dragValue = value;
+                          },
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              // PlayerSlider(
+              //   isMini: false,
+              // ),
+            ),
+            Consumer(
+              builder: (context, watch, child) {
+                final totalDuration = watch(totalDurationProvider);
+                return totalDuration.when(
+                    data: (value) => Text(Duration(seconds: value.toInt()).format()),
+                    loading: () => Container(),
+                    error: (_, __) => Container());
+              },
+            )
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 90,
+              width: 90,
+              child: IconButton(
+                icon: Icon(
+                  Icons.skip_previous,
+                  size: 40,
+                ),
+                onPressed: () {
+                  audioPlayer.previous();
+                },
+              ),
+            ),
+            SizedBox(
+              height: 90,
+              width: 90,
+              child: PlayPauseButton(
+                height: 90,
+                width: 90,
+                iconSize: 70,
+                pauseIcon: Icons.pause_circle_filled,
+                playIcon: Icons.play_circle_filled,
+              ),
+            ),
+            SizedBox(
+              height: 90,
+              width: 90,
+              child: IconButton(
+                icon: Icon(
+                  Icons.skip_next,
+                  size: 40,
+                ),
+                onPressed: () {
+                  audioPlayer.next();
+                },
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+}
