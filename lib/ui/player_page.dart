@@ -140,14 +140,10 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                           inactiveColor: Colors.transparent,
                         );
                       }
-//
+
                       final Playing playing2 = _player.current.value;
                       Duration position = snapshot.data;
-                      if (position == playing2.audio.duration) {
-                        _dragValue = null;
-                      } else {
-                        _dragValue = position.inMilliseconds.toDouble();
-                      }
+
                       print('object  ${position} - ${playing2.audio.duration}');
                       var _xxx = min(
                           _dragValue ?? position.inMilliseconds.toDouble(), playing2.audio.duration.inMilliseconds.toDouble());
@@ -157,52 +153,36 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                           inactiveTrackColor: Colors.white.withOpacity(0.3),
                           thumbColor: Colors.white,
                           overlayColor: Colors.white.withOpacity(0.3),
-                          trackHeight: 2,
-                          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4),
+                          trackHeight: 4,
+                          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7),
                         ),
-                        child: SfSlider(
-                          activeColor: Colors.blue,
-                          inactiveColor: Colors.amber[50],
+                        child: Slider(
+                          // activeColor: Colors.blue,
+                          // inactiveColor: Colors.amber[50],
                           min: 0.0,
                           max: playing2.audio.duration.inMilliseconds.toDouble(),
                           value: _xxx,
-
-//                         double _value = 4.0;
-
-// SfSlider(
-//   min: 0.0,
-//   max: 10.0,
-//   value: _value,
-//   interval: 1,
-//   showTicks: true,
-//   showLabels: true,
-//   inactiveColor: Colors.red,
-//   onChanged: (dynamic newValue) {
-//     setState(() {
-//       _value = newValue;
-//     });
-//    },
-// )
 
                           onChanged: (value) {
                             setState(() {
                               _dragValue = value;
 
-                              print('object2  ${position} - ${playing2.audio.duration}');
+                              //   print('object2  ${position} - ${playing2.audio.duration}');
                             });
 
-                            print('object3  ${position} - ${playing2.audio.duration}');
+                            //   print('object3  ${position} - ${playing2.audio.duration}');
                             _player.seek(Duration(milliseconds: value.toInt()));
                           },
 
-                          // onChangeEnd: (value) {
-                          //   // if (widget.onChanged != null) {
-                          //   //   widget.onChanged(Duration(milliseconds: value.round()));
-                          //   // }
-                          //   _player.seek(Duration(milliseconds: value.round()));
-
-                          //   _dragValue = null;
-                          // },
+                          onChangeEnd: (value) {
+                            // if (widget.onChanged != null) {
+                            //   widget.onChanged(Duration(milliseconds: value.round()));
+                            // }
+                            // _player.seek(Duration(milliseconds: value.round()));
+                            //setState(() {
+                            _dragValue = null;
+                            //});
+                          },
                         ),
                       );
                     },
