@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:minispotify/ui/home_page.dart';
+import 'package:minispotify/ui/player_page.dart';
 
 void main() {
   runApp(MusicPlayerApp());
@@ -20,7 +21,7 @@ class MusicPlayerApp extends StatelessWidget {
            // textTheme: GoogleFonts.barlowTextTheme(ThemeData.dark().textTheme),
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
-          home: HomePage()),
+          home: PlayerPage()),
     );
   }
 }

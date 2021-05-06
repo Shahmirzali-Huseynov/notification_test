@@ -141,12 +141,11 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                         );
                       }
 
-                      final Playing playing2 = _player.current.value;
-                      Duration position = snapshot.data;
+                     // final Playing playing2 = _player.current.value;
+                      //Duration position = snapshot.data;
 
-                      print('object  ${position} - ${playing2.audio.duration}');
-                      var _xxx = min(
-                          _dragValue ?? position.inMilliseconds.toDouble(), playing2.audio.duration.inMilliseconds.toDouble());
+                  //    print('object  ${position} - ${playing2.audio.duration}');
+                      //   var _xxx = min( _dragValue ?? position.inMilliseconds.toDouble(), playing2.audio.duration.inMilliseconds.toDouble());
                       return SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           activeTrackColor: Colors.white,
@@ -160,9 +159,14 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                           // activeColor: Colors.blue,
                           // inactiveColor: Colors.amber[50],
                           min: 0.0,
-                          max: playing2.audio.duration.inMilliseconds.toDouble(),
-                          value: _xxx,
-
+                          //max: playing2.audio.duration.inMilliseconds.toDouble(),
+                          max: _playerDuration,
+                          value : min(_dragValue ??_playerCurrent, _playerDuration),
+                          // value: min(_dragValue ?? position.inMilliseconds.toDouble(),
+                          //     playing2.audio.duration.inMilliseconds.toDouble()),
+                          onChangeStart: (value) {
+                            _dragValue = value;
+                          },
                           onChanged: (value) {
                             setState(() {
                               _dragValue = value;
@@ -171,7 +175,6 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                             });
 
                             //   print('object3  ${position} - ${playing2.audio.duration}');
-                            _player.seek(Duration(milliseconds: value.toInt()));
                           },
 
                           onChangeEnd: (value) {
@@ -180,6 +183,8 @@ class _PlayerControlWidgetState extends State<PlayerControlWidget> {
                             // }
                             // _player.seek(Duration(milliseconds: value.round()));
                             //setState(() {
+                            _player.seek(Duration(milliseconds: value.toInt()));
+
                             _dragValue = null;
                             //});
                           },

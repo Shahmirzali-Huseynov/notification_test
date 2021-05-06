@@ -10,15 +10,14 @@ class CurrentlyPlayingText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
-    final currentlyPlaying = watch(currentlyPlayingProvider);
-    return currentlyPlaying.when(
-        data: (audioTrackModel) => Text(
-              '${audioTrackModel.trackName} \u25CF ${audioTrackModel.artistName} ',
-              style: TextStyle(fontSize: fontSize),
-              textAlign: textAlign,
-              overflow: TextOverflow.ellipsis,
-            ),
-        loading: () => Container(),
-        error: (_, __) => Container());
+    final currentlyPlaying = watch(playlistProvider);
+    return Text(
+      '${currentlyPlaying.trackName} \u25CF ${currentlyPlaying.artistName} ',
+      style: TextStyle(fontSize: fontSize),
+      textAlign: textAlign,
+      overflow: TextOverflow.ellipsis,
+    );
+    // loading: () => Container(),
+    // error: (_, __) => Container());
   }
 }

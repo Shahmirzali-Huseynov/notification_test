@@ -14,6 +14,7 @@ class PlayPauseButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
+    
     return watch(playingStateProvider).when(
         data: (isPlaying) => Center(
               child: SizedBox(
@@ -35,7 +36,12 @@ class PlayPauseButton extends ConsumerWidget {
                 ),
               ),
             ),
-        loading: () => Container(),
+        loading: () => Container(
+                margin: EdgeInsets.all(8.0),
+                width: 50,
+                height: 50,
+                child: CircularProgressIndicator(),
+              ),
         error: (_, __) => Container());
   }
 }

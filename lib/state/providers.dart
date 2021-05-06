@@ -2,82 +2,40 @@ import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:minispotify/models/audio_track_model.dart';
 
-final playlistProvider = Provider((ref) => [
-      AudioTrackModel(
-          artistName: 'Benjamin Tissot',
-          trackName: 'My Old East Coast (feat. Melanie)',
-          thumbnail: 'https://www.bensound.com/bensound-img/ukulele.jpg',
-          audioUrl: 'https://www.bensound.com/bensound-music/bensound-ukulele.mp3'),
-      AudioTrackModel(
-          artistName: 'Benjamin Tissot',
-          trackName: 'Creative Minds',
-          thumbnail: 'https://www.bensound.com/bensound-img/creativeminds.jpg',
-          audioUrl: 'https://www.bensound.com/bensound-music/bensound-creativeminds.mp3'),
-      AudioTrackModel(
-          artistName: 'Benjamin Tissot',
-          trackName: 'Little Idea',
-          thumbnail: 'https://www.bensound.com/bensound-img/littleidea.jpg',
-          audioUrl: 'https://www.bensound.com/bensound-music/bensound-littleidea.mp3'),
-      AudioTrackModel(
-          artistName: 'Benjamin Tissot',
-          trackName: 'Jazzy Frenchy',
-          thumbnail: 'https://www.bensound.com/bensound-img/jazzyfrenchy.jpg',
-          audioUrl: 'https://www.bensound.com/bensound-music/bensound-jazzyfrenchy.mp3'),
-      AudioTrackModel(
-          artistName: 'Benjamin Tissot',
-          trackName: 'Cute',
-          thumbnail: 'https://www.bensound.com/bensound-img/littleidea.jpg',
-          audioUrl: 'https://www.bensound.com/bensound-music/bensound-littleidea.mp3'),
-      AudioTrackModel(
-          artistName: 'Benjamin Tissot',
-          trackName: 'Cute',
-          thumbnail: 'https://www.bensound.com/bensound-img/cute.jpg',
-          audioUrl: 'https://www.bensound.com/bensound-music/bensound-cute.mp3'),
-      AudioTrackModel(
-          artistName: 'Benjamin Tissot',
-          trackName: 'Memories',
-          thumbnail: 'https://www.bensound.com/bensound-img/memories.jpg',
-          audioUrl: 'https://www.bensound.com/bensound-music/bensound-memories.mp3'),
-      AudioTrackModel(
-          artistName: 'Benjamin Tissot',
-          trackName: 'Slow Motion',
-          thumbnail: 'https://www.bensound.com/bensound-img/slowmotion.jpg',
-          audioUrl: 'https://www.bensound.com/bensound-music/bensound-slowmotion.mp3'),
-      AudioTrackModel(
-          artistName: 'Benjamin Tissot',
-          trackName: 'Funny Song',
-          thumbnail: 'https://www.bensound.com/bensound-img/funnysong.jpg',
-          audioUrl: 'https://www.bensound.com/bensound-music/bensound-funnysong.mp3'),
-    ]);
-final audio = Audio(
-  "/assets/audio/country.mp3",
-  metas: Metas(
-    title: "Country",
-    artist: "Florent Champigny",
-    album: "CountryAlbum",
-    image: MetasImage.asset("assets/images/country.jpg"), //can be MetasImage.network
+final playlistProvider = Provider(
+  (ref) => AudioTrackModel(
+    artistName: 'Benjamin Tissot',
+    trackName: 'My Old East Coast (feat. Melanie)',
+    thumbnail: 'https://www.bensound.com/bensound-img/ukulele.jpg',
+    audioUrl: 'https://ia601403.us.archive.org/24/items/6dqvb-y-7-x-5-fss.-128/6dqvbY7X5FSs.128.mp3',
+    //'https://www.bensound.com/bensound-music/bensound-ukulele.mp3',
   ),
 );
+// final audio = Audio(
+//   "/assets/audio/country.mp3",
+//   metas: Metas(
+//     title: "Country",
+//     artist: "Florent Champigny",
+//     album: "CountryAlbum",
+//     image: MetasImage.asset("assets/images/country.jpg"), //can be MetasImage.network
+//   ),
+// );
 final audioPlayerProvider = Provider.autoDispose<AssetsAudioPlayer>((ref) {
   final playlist = ref.watch(playlistProvider);
   final audioPlayer = AssetsAudioPlayer();
   //audioPlayer.
   audioPlayer.open(
-    Playlist(
-      audios: playlist
-          .map((audioTrackModel) => Audio.network(
-                audioTrackModel.audioUrl,
-                metas: Metas(
-                  album: 'xxx',
-                  title: 'yyyy',
-                  artist: 'zzzz',
-                  image: MetasImage.network(
-                    audioTrackModel.thumbnail,
-                  ),
-                ),
-                // cached: true,
-              ))
-          .toList(),
+    Audio.network(
+      playlist.audioUrl,
+      metas: Metas(
+        album: 'xxx',
+        title: 'yyyy',
+        artist: 'zzzz',
+        image: MetasImage.network(
+          playlist.thumbnail,
+        ),
+      ),
+      // cached: true,
     ),
     notificationSettings: NotificationSettings(
       stopEnabled: false,
@@ -95,7 +53,7 @@ final currentlyPlayingProvider = StreamProvider.autoDispose<AudioTrackModel>((re
   final playlist = ref.watch(playlistProvider);
   final audioPlayer = ref.watch(audioPlayerProvider);
   // return audioPlayer.currentPosition;
-  return audioPlayer.current.map((playing) => playlist[playing.index]);
+  return audioPlayer.current.map((playing) => playlist);
 });
 
 final totalDurationProvider = StreamProvider.autoDispose<double>((ref) {
